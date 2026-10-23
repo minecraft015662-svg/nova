@@ -1,0 +1,2 @@
+e1b5076c4cedf341b5fa9b4a60a51a5e4a12f0528b13464d9cd97c375b7305e9  nexa-theme.blueprint
+7ecf8558a0b9d94eb791755b82a43530097cde308dbbf08c7fa80f9b5aad5db6  nexa-suite.zip

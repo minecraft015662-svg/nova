@@ -1,0 +1,24 @@
+# Nexa Suite — Caddy with automatic HTTPS.
+# Adjust the domain, PHP-FPM socket and root path, then:
+#   sudo cp deploy/Caddyfile.example /etc/caddy/Caddyfile
+#   sudo caddy validate --config /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+
+nexa.example.com {
+    root * /var/www/nexa-suite/public
+    encode zstd gzip
+
+    php_fastcgi unix//run/php/php8.2-fpm.sock
+    file_server
+
+    @hidden path_regexp hidden (^|/)\.
+    respond @hidden 404
+}
+
+# Option B — expose Caddy on port 4411 and reverse-proxy the built-in server
+# (systemd unit on 127.0.0.1:4411 would collide with Caddy on the same port,
+# so keep the app on 4412 in that case):
+#
+# https://panel.example.com:4411 {
+#     reverse_proxy 127.0.0.1:4412
+# }

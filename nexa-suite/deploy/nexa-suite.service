@@ -1,0 +1,29 @@
+# Nexa Suite — PHP built-in server on 127.0.0.1:4411.
+# Install:
+#   sudo cp deploy/nexa-suite.service /etc/systemd/system/nexa-suite.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now nexa-suite
+#   sudo systemctl status nexa-suite
+#
+# Keep the bind address on localhost and proxy through Nginx/Caddy for TLS.
+# For a public install, prefer Nginx + PHP-FPM (see nginx-port-4411.conf.example).
+
+[Unit]
+Description=Nexa Suite (Pterodactyl license + bot console)
+Documentation=file:///var/www/nexa-suite/README.md
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/nexa-suite
+ExecStart=/usr/bin/php /var/www/nexa-suite/bin/nexa serve --host=127.0.0.1 --port=4411
+Restart=on-failure
+RestartSec=3
+Environment=PHP_CLI_SERVER_WORKERS=4
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

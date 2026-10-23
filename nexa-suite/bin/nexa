@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
+if (PHP_VERSION_ID < 80100) {
+    fwrite(STDERR, 'Nexa Suite requires PHP 8.1 or newer. This is PHP ' . PHP_VERSION . '.' . PHP_EOL);
+    exit(1);
+}
+
+require dirname(__DIR__) . '/app/bootstrap.php';
+
+$app = new Nexa\App(true, false);
+$console = new Nexa\Console();
+
+exit($console->run($argv));

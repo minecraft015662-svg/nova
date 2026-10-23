@@ -1,0 +1,56 @@
+# Nexa Suite — HTTPS subdomain on 443 with PHP-FPM (recommended).
+# Copy to /etc/nginx/sites-available/nexa-suite and adjust paths/socket.
+# Then: sudo ln -s /etc/nginx/sites-available/nexa-suite /etc/nginx/sites-enabled/
+#       sudo nginx -t && sudo systemctl reload nginx
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name nexa.example.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name nexa.example.com;
+
+    root /var/www/nexa-suite/public;
+    index index.php;
+
+    ssl_certificate     /etc/letsencrypt/live/nexa.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/nexa.example.com/privkey.pem;
+
+    client_max_body_size 8m;
+    charset utf-8;
+
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_read_timeout 120s;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location ~* \.(css|js|svg|png|jpg|jpeg|gif|webp|woff2)$ {
+        expires 7d;
+        access_log off;
+        try_files $uri =404;
+    }
+}
